@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/ach_nav_item"
+        android:icon="@drawable/stars_24px"
+        android:title="Достижения"
+        />
+    <item
+        android:id="@+id/prof_nav_item"
+        android:icon="@drawable/account_circle_24px"
+        android:title="Профиль"
+        />
+    <item
+        android:id="@+id/keys_nav_item"
+        android:icon="@drawable/outline_vpn_key_24"
+        android:title="Ключи"
+        />
+    <item
+        android:id="@+id/friends_nav_item"
+        android:icon="@drawable/outline_group_24"
+        android:title="Друзья"
+        />
+
+</menu>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    android:padding="5dp"
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="10dp">
+
+    <TextView
+        android:id="@+id/ach_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="kek"
+        android:textSize="20sp" />
+    <ProgressBar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:indeterminate="false"
+        android:id="@+id/ach_progress"
+        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+        android:layout_below="@+id/ach_name"
+        android:layout_marginTop="10dp"/>
+
+    <TextView
+        android:id="@+id/ach_progress_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="15sp"
+        android:text="10/10"
+        android:layout_below="@+id/ach_progress"
+        />
+
+</RelativeLayout>

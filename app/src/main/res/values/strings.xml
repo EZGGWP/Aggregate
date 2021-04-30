@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Agregator</string>
+    <string name="auth_prefs">auth_preferences.xml</string>
+</resources>

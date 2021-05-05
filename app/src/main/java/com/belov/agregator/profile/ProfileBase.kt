@@ -65,7 +65,7 @@ class ProfileBase: FragmentActivity() {
     lateinit var app.githubController: GithubController
     lateinit var app.steamController: SteamController*/
 
-    //TODO: Разобраться с потерей данных, система друзей
+    //TODO: Делать систему друзей: система запросов на дружбу, приём запросов, оформление списка друзей
 
 
     init {
@@ -78,6 +78,9 @@ class ProfileBase: FragmentActivity() {
         app = (applicationContext as App)
 
         setContentView(R.layout.profile_base_layout)
+
+        app.databaseManager.getUserId()
+
         currentUser = getSharedPreferences(getString(R.string.auth_prefs), Context.MODE_PRIVATE).getString("authedUser", "")!!
 
         val keys = getSharedPreferences(getString(R.string.auth_prefs), Context.MODE_PRIVATE)?.getString(currentUser, "")

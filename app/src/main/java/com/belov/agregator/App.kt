@@ -55,11 +55,7 @@ class App() : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        Log.d("_____________________________________________", "APP IS STARTED!!!!!!!!!!!!!!!!!!!!!!!")
-        /*val intent = Intent(this, MainActivity::class.java)
-        val bundle = Bundle()
-        bundle.putParcelable("app", this)
-        startActivity(intent, bundle)*/
+
     }
 
 

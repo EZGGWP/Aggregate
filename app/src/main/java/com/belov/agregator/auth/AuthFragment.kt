@@ -50,7 +50,7 @@ class AuthFragment() : Fragment() {
                 passwordField = layout.findViewById(R.id.password_field)
                 button = layout.findViewById(R.id.authButton)
                 button.setOnClickListener {
-                    db.setCurrentUserName(loginField.text.toString())
+                    db.setCurrentUserNameAndGetHash(loginField.text.toString())
                     if (db.getHash() != null) {
                         val result = verifyHash(passwordField.text.toString(), db.getHash()!!)
                         if (result.verified) {
@@ -94,7 +94,7 @@ class AuthFragment() : Fragment() {
                     if (loginField.text.length in 3..20) {
                         if (passwordField.text.toString().length in 5..30) {
                             if (passwordField.text.toString() == proofField.text.toString()) {
-                                if (db.checkUniqueName(loginField.text.toString())) {
+                                if (db.getNameCount(loginField.text.toString())) {
                                     db.addUser(
                                         loginField.text.toString(),
                                         createHash(passwordField.text.toString())

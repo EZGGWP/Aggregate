@@ -2,6 +2,8 @@ package com.belov.agregator.database
 
 import android.app.AlertDialog
 import com.belov.agregator.MainActivity
+import com.belov.agregator.utilities.Friend
+import com.belov.agregator.utilities.User
 import com.belov.agregator.utilities.NewBool
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -15,8 +17,10 @@ class DatabaseManager(private val parent: MainActivity) {
 
     private lateinit var username: String;
     private lateinit var passwordHash: String;
-    private var unique by Delegates.notNull<Boolean>();
+    var userID by Delegates.notNull<Int>();
     var state: NewBool = NewBool(parent)
+    val users: ArrayList<User> = arrayListOf()
+    var isUsersReady = false
 
     lateinit var connection: Connection;
     init {
@@ -54,9 +58,13 @@ class DatabaseManager(private val parent: MainActivity) {
         }
     }
 
-    fun setCurrentUserName(username: String) {
+    fun setCurrentUserNameAndGetHash(username: String) {
         this.username = username
         getUserPasswordHash()
+    }
+
+    fun setCurrentUserName(username: String) {
+        this.username = username
     }
 
     fun addUser(username: String, password: String) {
@@ -84,7 +92,8 @@ class DatabaseManager(private val parent: MainActivity) {
         }
     }
 
-    fun getNameCount(username: String) {
+    fun getNameCount(username: String): Boolean {
+        var unique = false
         runBlocking {
             val prepStatement = connection.prepareStatement("SELECT count(*) FROM \"users\" WHERE \"username\" = ?")
             prepStatement.setString(1, username)
@@ -98,11 +107,64 @@ class DatabaseManager(private val parent: MainActivity) {
             }
             coroutine.join()
         }
+        return unique
     }
 
-    fun checkUniqueName(username: String): Boolean {
+/*    fun checkUniqueName(username: String): Boolean {
         getNameCount(username)
         return unique
+    }*/
+
+    fun getUserId(): Int {
+        var id = -1
+        val prepStatement = connection.prepareStatement("SELECT \"id\" FROM \"users\" WHERE \"username\" = ?")
+        prepStatement.setString(1, username)
+        runBlocking {
+            val coroutine = GlobalScope.launch {
+                val resultSet = prepStatement.executeQuery()
+                if (resultSet.next()) {
+                    id = resultSet.getInt(1)
+                }
+            }
+            coroutine.join()
+        }
+        userID = id
+        return id
+    }
+
+    //TODO: Переделать под асинк?
+    fun getFriends(): ArrayList<Friend> {
+        val friendsList = arrayListOf<Friend>()
+        if (userID != -1) {
+            val prepStatement = connection.prepareStatement("SELECT \"sId\", \"stat\" FROM \"friends\" WHERE (\"rId\" = ?) OR (\"sId\" = ? AND \"stat\" = true)")
+            prepStatement.setInt(1, userID)
+            prepStatement.setInt(2, userID)
+            runBlocking {
+                val coroutine = GlobalScope.launch {
+                    val resultSet = prepStatement.executeQuery()
+                    while (resultSet.next()) {
+                        friendsList.add(Friend(resultSet.getBoolean(2), resultSet.getInt(1)))
+                    }
+                }
+                coroutine.join()
+            }
+        }
+        return friendsList
+    }
+
+    fun getNamesAndIDs(): Int {
+        isUsersReady
+        users.clear()
+        val prepStatement = connection.prepareStatement("SELECT \"id\", \"username\" FROM \"users\"")
+        GlobalScope.launch {
+            val resultSet = prepStatement.executeQuery()
+            while (resultSet.next()) {
+                val user = User(resultSet.getInt(1), resultSet.getString(2))
+                users.add(user)
+            }
+            isUsersReady = true
+        }
+        return users.size
     }
 
 }

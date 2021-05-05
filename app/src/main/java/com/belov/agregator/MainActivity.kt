@@ -18,6 +18,7 @@ class MainActivity : FragmentActivity(), NewBoolListener {
     lateinit var checkDialog: AlertDialog
     lateinit var app: App
     var uiInitialized = false
+    var currentUser = ""
 
 
 
@@ -28,7 +29,7 @@ class MainActivity : FragmentActivity(), NewBoolListener {
 
         setContentView(R.layout.activity_main)
 
-        var currentUser = getSharedPreferences(getString(R.string.auth_prefs), Context.MODE_PRIVATE)?.getString("authedUser", "");
+        currentUser = getSharedPreferences(getString(R.string.auth_prefs), Context.MODE_PRIVATE)?.getString("authedUser", "")!!;
 
 
         val builder = AlertDialog.Builder(this)
@@ -37,21 +38,29 @@ class MainActivity : FragmentActivity(), NewBoolListener {
         
         app.databaseManager = DatabaseManager(this)
 
-        if (currentUser!!.isNotEmpty()) {
-            val intent = Intent(this, ProfileBase::class.java)
-            startActivityForResult(intent, 1)
-        } else {
-            initUi()
-        }
+
+
     }
 
     override fun onValueChanged(value: Boolean) {
         checkDialog.hide()
+        checkCurrentUser()
+        app.databaseManager.getNamesAndIDs()
     }
 
     override fun onDestroy() {
         super.onDestroy()
         checkDialog.dismiss()
+    }
+
+    fun checkCurrentUser() {
+        if (currentUser!!.isNotEmpty()) {
+            app.databaseManager.setCurrentUserName(currentUser)
+            val intent = Intent(this, ProfileBase::class.java)
+            startActivityForResult(intent, 1)
+        } else {
+            initUi()
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

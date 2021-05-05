@@ -7,8 +7,9 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.belov.agregator.R
+import com.belov.agregator.utilities.Friend
 
-class FriendsAdapter() : RecyclerView.Adapter<FriendsAdapter.ViewHolder>() {
+class FriendsAdapter(var friendsList: ArrayList<Friend>) : RecyclerView.Adapter<FriendsAdapter.ViewHolder>() {
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val friendName = view.findViewById<TextView>(R.id.friend_name)
     }
@@ -18,11 +19,11 @@ class FriendsAdapter() : RecyclerView.Adapter<FriendsAdapter.ViewHolder>() {
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.friendName.text = "Friend #$position"
+        holder.friendName.text = friendsList[position].username
 
     }
 
     override fun getItemCount(): Int {
-        return 12
+        return friendsList.size
     }
 }

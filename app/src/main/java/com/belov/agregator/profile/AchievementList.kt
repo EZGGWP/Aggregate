@@ -1,6 +1,5 @@
 package com.belov.agregator.profile
 
-import android.net.sip.SipSession
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -13,18 +12,15 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.belov.agregator.R
 import com.belov.agregator.utilities.Achievement
 import com.belov.agregator.utilities.NewListener
-import com.belov.agregator.utilities.ProfileViewModel
 
 class AchievementList() : Fragment() {
     lateinit var list: List<Achievement>
     lateinit var listener: SwipeRefreshLayout.OnRefreshListener
-    lateinit var viewModel: ProfileViewModel
     lateinit var currentUser: String
     lateinit var refresher: SwipeRefreshLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel = ViewModelProvider(this).get(ProfileViewModel::class.java)
         /*currentUser = arguments?.getString("user")!!
         list = (arguments?.getParcelableArrayList<Achievement>("list")?.toList())!!
         listener = arguments?.getSerializable("listener") as NewListener*/

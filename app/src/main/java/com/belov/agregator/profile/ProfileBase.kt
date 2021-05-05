@@ -11,7 +11,6 @@ import android.view.View
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.commitNow
 import androidx.lifecycle.ViewModelProvider
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.belov.agregator.App
 import com.belov.agregator.R
 import com.belov.agregator.api.*
@@ -21,7 +20,6 @@ import com.belov.agregator.storage.SpotifyDataStorage
 import com.belov.agregator.storage.SteamDataStorage
 import com.belov.agregator.utilities.Achievement
 import com.belov.agregator.utilities.NewListener
-import com.belov.agregator.utilities.ProfileViewModel
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.spotify.sdk.android.authentication.AuthenticationClient
 import com.spotify.sdk.android.authentication.AuthenticationRequest
@@ -51,8 +49,6 @@ class ProfileBase: FragmentActivity() {
     var isSteamGamesReady = false
     var isGithubReposReady = false
 
-    lateinit var viewModel: ProfileViewModel
-
     //var app.achievementList = arrayListOf<Achievement>()
 
     var profile = Profile()
@@ -79,11 +75,8 @@ class ProfileBase: FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        //app = intent.getParcelableExtra("app")
         app = (applicationContext as App)
 
-
-        viewModel = ViewModelProvider(this).get(ProfileViewModel::class.java)
         setContentView(R.layout.profile_base_layout)
         currentUser = getSharedPreferences(getString(R.string.auth_prefs), Context.MODE_PRIVATE).getString("authedUser", "")!!
 
@@ -136,11 +129,6 @@ class ProfileBase: FragmentActivity() {
 
 
 
-
-        //val refreshListener = NewListener(this)
-
-        //viewModel.listener = refreshListener
-
         val bundle = Bundle()
         val bundle2 = Bundle()
         bundle.putString("user", currentUser)
@@ -148,9 +136,6 @@ class ProfileBase: FragmentActivity() {
         val refreshListener = NewListener(this)
         bundle2.putSerializable("listener", refreshListener)
         bundle2.putParcelableArrayList("list", ArrayList<Achievement>(app.achievementList))
-
-        //achList.list = achievements2
-        //achList.listener = refreshListener
 
         profile.arguments = bundle
         achList.arguments = bundle2
@@ -246,12 +231,10 @@ class ProfileBase: FragmentActivity() {
             app.githubController.onReposComplete = { _, new ->
                 Log.d("REPO COUNTER DEBUG____________________________", "$new/${app.githubController.storage.repoCount}")
                 if (new == app.githubController.storage.repoCount) {
-                    app.githubController.storage.repoCount = 0
                     isGithubReposReady = true
                     if (isGithubReady && isSpotifyReady && isSteamReady && isSteamGamesReady && isGithubReposReady) {
                         updateUi()
                     }
-                    app.githubController.storage.repoCount = 0;
                 }
             }
         } else {
@@ -282,12 +265,10 @@ class ProfileBase: FragmentActivity() {
             app.steamController.onGamesComplete = { _, new ->
                 Log.d("GAME COUNTER DEBUG____________________________", "$new/${app.steamController.storage.gamesCount}")
                 if (new == app.steamController.storage.gamesCount) {
-                    app.steamController.storage.gamesCount = 0
                     isSteamGamesReady = true
                     if (isGithubReady && isSpotifyReady && isSteamReady && isSteamGamesReady && isGithubReposReady) {
                         updateUi()
                     }
-                    app.steamController.storage.gamesCount = 0;
                 }
             }
         } else {

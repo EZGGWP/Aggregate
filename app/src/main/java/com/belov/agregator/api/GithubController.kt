@@ -127,4 +127,11 @@ class GithubController(val currentGithubUser: String, val storage: GithubDataSto
         Log.d("_________________________________", t?.message)
     }
 
+    fun clearData() {
+        completedReposReqs = 0
+        completedReqs = 0
+        reposMap.clear()
+        storage.clearData()
+    }
+
 }

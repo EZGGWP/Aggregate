@@ -98,27 +98,6 @@ class SteamController(val apiKey: String, val steamId: String, val storage: Stea
                 currentGame = item.asJsonObject.get("appid").asString
                 gamesMap[currentGame] = 0
                 getAchievements()
-                //delay(50)
-                /*val call = steam.getAchievements(currentGame, apiKey, steamId)
-                val res = call.execute()
-                if (res.isSuccessful) {
-                    val body = res.body().get("playerstats").asJsonObject
-                    if (body.has("achievements")) {
-                        val achievements = body.get("achievements").asJsonArray
-                        var counter = 0
-                        for (item in achievements) {
-                            if (item.asJsonObject.get("achieved").asInt == 1) {
-                                counter++
-                            }
-                        }
-                        storage.totalAchievements += counter
-                        gamesMap[currentGame] = counter
-                        Log.d("DEBUG!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", "Inserted $currentGame")
-                    } else {
-                        gamesMap[currentGame] = 0
-                    }
-                }
-                 */
 
             }
         }
@@ -176,6 +155,13 @@ class SteamController(val apiKey: String, val steamId: String, val storage: Stea
     override fun onFailure(call: Call<JsonObject>?, t: Throwable?) {
 
         Log.d("DEBUG!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", t?.message)
+    }
+
+    fun clearData() {
+        completedGameReqs = 0
+        completedReqs = 0
+        gamesMap.clear()
+        storage.clearData()
     }
 
 }

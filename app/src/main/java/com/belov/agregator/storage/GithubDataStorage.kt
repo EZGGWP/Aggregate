@@ -13,7 +13,7 @@ class GithubDataStorage {
         val listOfAchievements = arrayListOf<Achievement>()
         listOfAchievements.add(GithubAchievement("Создать 20 репозиториев", 20, repoCount, 7))
         listOfAchievements.add(GithubAchievement("Создать 10 гистов", 10, gistCount, 8))
-        listOfAchievements.add(GithubAchievement("Сделать 5 пулл-реквестов к своим репозиториям", 300, pullCount, 9))
+        listOfAchievements.add(GithubAchievement("Сделать 5 пулл-реквестов к своим репозиториям", 5, pullCount, 9))
         return listOfAchievements
     }
 
@@ -48,6 +48,12 @@ class GithubDataStorage {
                 return arrayOfNulls(size)
             }
         }
+    }
+
+    fun clearData() {
+        repoCount = 0
+        gistCount = 0
+        pullCount = 0
     }
 
 }

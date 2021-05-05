@@ -79,4 +79,11 @@ class SpotifyController(val apiKey: String, val storage: SpotifyDataStorage): Ca
         TODO("Not yet implemented")
     }
 
+    fun clearData() {
+        totalLikedTracks = 0
+        totalPlaylists = 0
+        totalFollowedArtists = 0
+        storage.clearData()
+    }
+
 }

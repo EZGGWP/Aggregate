@@ -6,6 +6,7 @@ import java.io.Serializable
 
 class NewListener(val prof: ProfileBase): SwipeRefreshLayout.OnRefreshListener, Serializable {
     override fun onRefresh() {
+        prof.app.githubController.clearData()
         prof.authenticateSpotify()
     }
 }

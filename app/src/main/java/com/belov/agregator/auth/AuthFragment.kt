@@ -35,16 +35,10 @@ class AuthFragment() : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        var currentUser = activity?.getSharedPreferences(getString(R.string.auth_prefs), Context.MODE_PRIVATE)?.getString("authedUser", "");
-        if (currentUser!!.isNotEmpty()) {
-            val intent = Intent(activity, ProfileBase::class.java)
-            startActivity(intent)
-        }
+
 
         regMode = arguments?.getBoolean("regMode")!!
-        //db = arguments?.getParcelable("db")!!
         db = ((context as MainActivity).applicationContext as App).databaseManager
-        //parent = arguments?.getSerializable("parent") as FragmentActivity
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {

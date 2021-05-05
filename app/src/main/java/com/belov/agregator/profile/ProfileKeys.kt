@@ -1,5 +1,6 @@
 package com.belov.agregator.profile
 
+import android.app.AlertDialog
 import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -30,6 +31,9 @@ class ProfileKeys : Fragment() {
         val githubKeyField = layout.findViewById<TextInputEditText>(R.id.github_key_field)
         val saveKeysButton = layout.findViewById<Button>(R.id.save_keys_button)
 
+        var isSteamKeyChecked = false
+        var isGithubKeyChecked = false
+
         var steamKey = ""
         var steamId = ""
         var githubKey = ""
@@ -37,8 +41,11 @@ class ProfileKeys : Fragment() {
         if (keys?.length != 0) {
             val keysList = keys?.split(";")
             steamKey = keysList!![0]
+            isSteamKeyChecked = true
             steamId = keysList[1]
             githubKey = keysList[2]
+            isGithubKeyChecked = true
+
         }
         steamKeyField.setText(steamKey)
         steamIdField.setText(steamId)
@@ -50,10 +57,37 @@ class ProfileKeys : Fragment() {
             if (steamKeyField.text?.length  == 32 || steamKeyField.text?.length == 0) {
                 if (steamIdField.text?.length == 17 || steamIdField.text?.length == 0) {
                     if (githubKeyField.text?.length == 40 || githubKeyField.text?.length == 0) {
-                        val keyString = "${steamKeyField.text.toString()};${steamIdField.text.toString()};${githubKeyField.text.toString()};"
-                        activity?.getSharedPreferences(getString(R.string.auth_prefs), Context.MODE_PRIVATE)?.edit {
-                            putString(currentUser, keyString)
-                            apply()
+                        val app = (activity as ProfileBase).app
+                        var isSteamKeyValid = false
+                        var isGithubKeyValid = false
+
+                        if (!isSteamKeyChecked && steamKeyField.text!!.isNotEmpty()) {
+                            isSteamKeyValid = app.steamController.checkKey(steamKeyField.text.toString())
+                        }
+
+                        if (!isGithubKeyChecked && githubKeyField.text!!.isNotEmpty()) {
+                            isGithubKeyValid = app.githubUserController.checkKey(githubKeyField.text.toString())
+                        }
+
+                        var warningString = ""
+                        if (!isSteamKeyValid && steamKeyField.text!!.isNotEmpty()) {
+                            warningString = "Указанные ключи для Steam некорректны."
+                        } else if (!isGithubKeyValid && githubKeyField.text!!.isNotEmpty()) {
+                            warningString = "Указанные ключи для Github некорректны."
+                        } else if (!isGithubKeyValid && !isSteamKeyValid && githubKeyField.text!!.isNotEmpty() && steamKeyField.text!!.isNotEmpty()) {
+                            warningString = "Указанные ключи для Steam и Github некорректны."
+                        }
+
+                        if (warningString.isNotEmpty()) {
+                            val builder = AlertDialog.Builder(context)
+                            builder.setMessage(warningString).setPositiveButton("Понятно", null).show()
+                        } else {
+                            val keyString = "${steamKeyField.text.toString()};${steamIdField.text.toString()};${githubKeyField.text.toString()};"
+                            activity?.getSharedPreferences(getString(R.string.auth_prefs), Context.MODE_PRIVATE)?.edit {
+                                putString(currentUser, keyString)
+                                apply()
+                            }
+                            Toast.makeText(context, "Данные успешно сохранены", Toast.LENGTH_LONG).show()
                         }
 
                     } else {

@@ -26,6 +26,9 @@ import kotlin.reflect.KProperty
 
 class SteamController(val apiKey: String, val steamId: String, val storage: SteamDataStorage): Callback<JsonObject> {
     var isKeySet = false
+
+    var initializedFor = ""
+
     var steam:  SteamApiClient
     lateinit var gamesArray: JsonArray
     lateinit var currentGame: String

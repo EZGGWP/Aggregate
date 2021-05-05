@@ -28,18 +28,14 @@ class AuthPagerAdapter(private val activity: FragmentActivity): FragmentStateAda
         return when (position) {
             0 -> {
                 val frag = AuthFragment()
-                //frag.parent = activity
-                //frag.db = db
-                var bundle = Bundle()
+                val bundle = Bundle()
                 bundle.putBoolean("regMode", false)
                 frag.arguments = bundle
                 frag
             }
             1 -> {
                 val frag = AuthFragment()
-                //frag.parent = activity
-                //frag.db = db
-                var bundle = Bundle()
+                val bundle = Bundle()
                 bundle.putBoolean("regMode", true)
                 frag.arguments = bundle
                 frag

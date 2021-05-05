@@ -21,6 +21,8 @@ class GithubUserController(var githubKey: String) : Callback<JsonObject> {
     lateinit var currentGithubUser: String
     var github: GithubApiClient
 
+    var initializedFor = ""
+
     init {
 
         if (githubKey.isNotEmpty()) {
@@ -51,7 +53,7 @@ class GithubUserController(var githubKey: String) : Callback<JsonObject> {
         var isKeyValid = false
         runBlocking {
             val kek = GlobalScope.launch {
-                val call = github.getUser(key)
+                val call = github.getUser("token $key")
                 val res = call.execute()
                 if (res.code() == 200) {
                     isKeyValid = true

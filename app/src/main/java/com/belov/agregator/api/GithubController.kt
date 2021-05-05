@@ -28,6 +28,8 @@ class GithubController(val currentGithubUser: String, val storage: GithubDataSto
 
     var github: GithubApiClient
 
+    var initializedFor = ""
+
     var completedReqs: Int by Delegates.observable(0) { _, i, i1 ->
         onReqsComplete?.invoke(i, i1)
     }

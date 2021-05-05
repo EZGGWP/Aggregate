@@ -17,6 +17,7 @@ import com.google.android.material.tabs.TabLayoutMediator
 class MainActivity : FragmentActivity(), NewBoolListener {
     lateinit var checkDialog: AlertDialog
     lateinit var app: App
+    var uiInitialized = false
 
 
 
@@ -38,19 +39,9 @@ class MainActivity : FragmentActivity(), NewBoolListener {
 
         if (currentUser!!.isNotEmpty()) {
             val intent = Intent(this, ProfileBase::class.java)
-            //val bundle = Bundle()
-            //bundle.putParcelable("app", app)
-            startActivity(intent)
+            startActivityForResult(intent, 1)
         } else {
-            val viewPager = findViewById<ViewPager2>(R.id.viewPager);
-            viewPager.adapter = AuthPagerAdapter(this)
-            val tabs = findViewById<TabLayout>(R.id.tabLayout)
-            TabLayoutMediator(tabs, viewPager) { tab, position ->
-                when (position) {
-                    0 -> tab.text = "Вход"
-                    1 -> tab.text = "Регистрация"
-                }
-            }.attach()
+            initUi()
         }
     }
 
@@ -61,5 +52,27 @@ class MainActivity : FragmentActivity(), NewBoolListener {
     override fun onDestroy() {
         super.onDestroy()
         checkDialog.dismiss()
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == resultCode) {
+            initUi()
+        }
+    }
+
+    fun initUi() {
+        if (!uiInitialized) {
+            val viewPager = findViewById<ViewPager2>(R.id.viewPager);
+            viewPager.adapter = AuthPagerAdapter(this)
+            val tabs = findViewById<TabLayout>(R.id.tabLayout)
+            TabLayoutMediator(tabs, viewPager) { tab, position ->
+                when (position) {
+                    0 -> tab.text = "Вход"
+                    1 -> tab.text = "Регистрация"
+                }
+            }.attach()
+        }
+        uiInitialized = true
     }
 }

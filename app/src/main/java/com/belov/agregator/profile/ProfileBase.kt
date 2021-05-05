@@ -60,12 +60,16 @@ class ProfileBase: FragmentActivity() {
     var profileKeys = ProfileKeys()
     var friends = Friends()
 
+    var steamKey = ""
+    var steamId = ""
+    var githubKey = ""
+
     /*lateinit var app.githubUserController: GithubUserController
     lateinit var app.spotifyController: SpotifyController
     lateinit var app.githubController: GithubController
     lateinit var app.steamController: SteamController*/
 
-    //TODO: Не получаются данные со всех апи на Лоле, надо сделать проверку ключей
+    //TODO: Разобраться с потерей данных, система друзей
 
 
     init {
@@ -82,9 +86,7 @@ class ProfileBase: FragmentActivity() {
         viewModel = ViewModelProvider(this).get(ProfileViewModel::class.java)
         setContentView(R.layout.profile_base_layout)
         currentUser = getSharedPreferences(getString(R.string.auth_prefs), Context.MODE_PRIVATE).getString("authedUser", "")!!
-        var steamKey = ""
-        var steamId = ""
-        var githubKey = ""
+
         val keys = getSharedPreferences(getString(R.string.auth_prefs), Context.MODE_PRIVATE)?.getString(currentUser, "")
         if (keys?.length != 0) {
             val keysList = keys?.split(";")
@@ -102,20 +104,23 @@ class ProfileBase: FragmentActivity() {
                     .show()
         }
         if (!app.isGithubUserControllerInitialized && !app.isGithubControllerInitialized) {
-            app.githubUserController = GithubUserController(githubKey)
-            if (app.githubUserController.getUser() != null && app.githubUserController.checkUser()) {
-                app.githubController = GithubController(
-                    app.githubUserController.currentGithubUser,
-                    githubStorage,
-                    githubKey
-                )
-            } else {
-                app.githubController = GithubController("", githubStorage, githubKey)
+            setGithubUserController()
+            setGithubController()
+        } else {
+            if (app.githubUserController.initializedFor != currentUser) {
+                setGithubUserController()
+            }
+            if (app.githubController.initializedFor != currentUser) {
+                setGithubController()
             }
         }
 
         if (!app.isSteamControllerInitialized) {
-            app.steamController = SteamController(steamKey, steamId, steamStorage)
+            setSteamController()
+        } else {
+            if (app.steamController.initializedFor != currentUser) {
+                setSteamController()
+            }
         }
 
         bottom_navigation.selectedItemId = when (app.selectedPage) {
@@ -155,6 +160,26 @@ class ProfileBase: FragmentActivity() {
 
 
 
+    }
+
+    fun setGithubController() {
+        if (app.githubUserController.getUser() != null && app.githubUserController.checkUser()) {
+            app.githubController = GithubController(app.githubUserController.currentGithubUser, githubStorage, githubKey)
+            app.githubController.initializedFor = currentUser
+        } else {
+            app.githubController = GithubController("", githubStorage, githubKey)
+            app.githubController.initializedFor = currentUser
+        }
+    }
+
+    fun setGithubUserController() {
+        app.githubUserController = GithubUserController(githubKey)
+        app.githubUserController.initializedFor = currentUser
+    }
+
+    fun setSteamController() {
+        app.steamController = SteamController(steamKey, steamId, steamStorage)
+        app.steamController.initializedFor = currentUser
     }
 
     override fun onCreateView(parent: View?, name: String, context: Context, attrs: AttributeSet): View? {
@@ -221,6 +246,7 @@ class ProfileBase: FragmentActivity() {
             app.githubController.onReposComplete = { _, new ->
                 Log.d("REPO COUNTER DEBUG____________________________", "$new/${app.githubController.storage.repoCount}")
                 if (new == app.githubController.storage.repoCount) {
+                    app.githubController.storage.repoCount = 0
                     isGithubReposReady = true
                     if (isGithubReady && isSpotifyReady && isSteamReady && isSteamGamesReady && isGithubReposReady) {
                         updateUi()
@@ -256,6 +282,7 @@ class ProfileBase: FragmentActivity() {
             app.steamController.onGamesComplete = { _, new ->
                 Log.d("GAME COUNTER DEBUG____________________________", "$new/${app.steamController.storage.gamesCount}")
                 if (new == app.steamController.storage.gamesCount) {
+                    app.steamController.storage.gamesCount = 0
                     isSteamGamesReady = true
                     if (isGithubReady && isSpotifyReady && isSteamReady && isSteamGamesReady && isGithubReposReady) {
                         updateUi()
@@ -453,6 +480,13 @@ class ProfileBase: FragmentActivity() {
                 }
             }
         }
+    }
+
+    fun cleanAndFinish(resultCode: Int) {
+        app.achievementList.clear()
+        getSharedPreferences(getString(R.string.auth_prefs), Context.MODE_PRIVATE)?.edit()?.putString("authedUser", "")?.apply()
+        setResult(resultCode)
+        finish()
     }
 
 }

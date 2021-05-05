@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.belov.agregator.R
+import com.belov.agregator.profile.ProfileBase
 import com.google.android.material.tabs.TabLayout
 
 class Profile: Fragment() {
@@ -35,8 +36,8 @@ class Profile: Fragment() {
             val builder = AlertDialog.Builder(context)
             builder.setMessage("Вы точно хотите выйти?")
                     .setPositiveButton("Да") { _: DialogInterface, _: Int ->
-                        activity?.getSharedPreferences(getString(R.string.auth_prefs), Context.MODE_PRIVATE)?.edit()?.putString("authedUser", "")?.apply()
-                        activity?.finish()
+                        val act = context as ProfileBase
+                        act.cleanAndFinish(1)
                     }
                     .setNegativeButton("Нет", null)
                     .show()

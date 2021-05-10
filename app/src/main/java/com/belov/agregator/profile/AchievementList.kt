@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.belov.agregator.App
 import com.belov.agregator.R
 import com.belov.agregator.utilities.Achievement
 import com.belov.agregator.utilities.NewListener
@@ -43,7 +44,7 @@ class AchievementList() : Fragment() {
         //refresher.setOnRefreshListener(viewModel.listener)
         refresher.setOnRefreshListener(listener)
         //recycler.adapter = AchievementAdapter(viewModel.achievementList)
-        recycler.adapter = AchievementAdapter(list)
+        recycler.adapter = AchievementAdapter(list, requireActivity().application as App)
         recycler.layoutManager = LinearLayoutManager(context)
         return layout
     }

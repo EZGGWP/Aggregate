@@ -60,34 +60,39 @@ class ProfileKeys : Fragment() {
                         val app = (activity as ProfileBase).app
                         var isSteamKeyValid = false
                         var isGithubKeyValid = false
+                        var wasAnythingChanged = false
 
                         if (!isSteamKeyChecked && steamKeyField.text!!.isNotEmpty()) {
                             isSteamKeyValid = app.steamController.checkKey(steamKeyField.text.toString())
+                            wasAnythingChanged = true
                         }
 
                         if (!isGithubKeyChecked && githubKeyField.text!!.isNotEmpty()) {
                             isGithubKeyValid = app.githubUserController.checkKey(githubKeyField.text.toString())
+                            wasAnythingChanged = true
                         }
 
                         var warningString = ""
-                        if (!isSteamKeyValid && steamKeyField.text!!.isNotEmpty()) {
+                        if (!isSteamKeyValid && steamKeyField.text!!.isNotEmpty() && !isSteamKeyChecked) {
                             warningString = "Указанные ключи для Steam некорректны."
-                        } else if (!isGithubKeyValid && githubKeyField.text!!.isNotEmpty()) {
+                        } else if (!isGithubKeyValid && githubKeyField.text!!.isNotEmpty() && !isGithubKeyChecked) {
                             warningString = "Указанные ключи для Github некорректны."
-                        } else if (!isGithubKeyValid && !isSteamKeyValid && githubKeyField.text!!.isNotEmpty() && steamKeyField.text!!.isNotEmpty()) {
+                        } else if (!isGithubKeyValid && !isSteamKeyValid && githubKeyField.text!!.isNotEmpty() && steamKeyField.text!!.isNotEmpty() && !isSteamKeyChecked && !isGithubKeyChecked) {
                             warningString = "Указанные ключи для Steam и Github некорректны."
                         }
 
                         if (warningString.isNotEmpty()) {
                             val builder = AlertDialog.Builder(context)
                             builder.setMessage(warningString).setPositiveButton("Понятно", null).show()
-                        } else {
+                        } else if (wasAnythingChanged) {
                             val keyString = "${steamKeyField.text.toString()};${steamIdField.text.toString()};${githubKeyField.text.toString()};"
                             activity?.getSharedPreferences(getString(R.string.auth_prefs), Context.MODE_PRIVATE)?.edit {
                                 putString(currentUser, keyString)
                                 apply()
                             }
                             Toast.makeText(context, "Данные успешно сохранены", Toast.LENGTH_LONG).show()
+                        } else {
+                            Toast.makeText(context, "Вы не внесли изменений", Toast.LENGTH_LONG).show()
                         }
 
                     } else {

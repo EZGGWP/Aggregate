@@ -2,14 +2,18 @@ package com.belov.agregator.database
 
 import android.app.AlertDialog
 import com.belov.agregator.MainActivity
-import com.belov.agregator.utilities.Friend
+import com.belov.agregator.utilities.Friendship
 import com.belov.agregator.utilities.User
 import com.belov.agregator.utilities.NewBool
+import com.google.gson.Gson
+import com.google.gson.JsonObject
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import org.postgresql.util.PGobject
 import org.postgresql.util.PSQLException
 import java.sql.Connection
+import java.sql.Date
 import java.sql.DriverManager
 import kotlin.properties.Delegates
 
@@ -21,6 +25,7 @@ class DatabaseManager(private val parent: MainActivity) {
     var state: NewBool = NewBool(parent)
     val users: ArrayList<User> = arrayListOf()
     var isUsersReady = false
+    lateinit var achJson: JsonObject
 
     lateinit var connection: Connection;
     init {
@@ -110,11 +115,6 @@ class DatabaseManager(private val parent: MainActivity) {
         return unique
     }
 
-/*    fun checkUniqueName(username: String): Boolean {
-        getNameCount(username)
-        return unique
-    }*/
-
     fun getUserId(): Int {
         var id = -1
         val prepStatement = connection.prepareStatement("SELECT \"id\" FROM \"users\" WHERE \"username\" = ?")
@@ -133,17 +133,17 @@ class DatabaseManager(private val parent: MainActivity) {
     }
 
     //TODO: Переделать под асинк?
-    fun getFriends(): ArrayList<Friend> {
-        val friendsList = arrayListOf<Friend>()
+    fun getFriends(): ArrayList<Friendship> {
+        val friendsList = arrayListOf<Friendship>()
         if (userID != -1) {
-            val prepStatement = connection.prepareStatement("SELECT \"sId\", \"stat\" FROM \"friends\" WHERE (\"rId\" = ?) OR (\"sId\" = ? AND \"stat\" = true)")
+            val prepStatement = connection.prepareStatement("SELECT \"sId\", \"rId\", \"stat\" FROM \"friends\" WHERE (\"rId\" = ?) OR (\"sId\" = ?)")
             prepStatement.setInt(1, userID)
             prepStatement.setInt(2, userID)
             runBlocking {
                 val coroutine = GlobalScope.launch {
                     val resultSet = prepStatement.executeQuery()
                     while (resultSet.next()) {
-                        friendsList.add(Friend(resultSet.getBoolean(2), resultSet.getInt(1)))
+                        friendsList.add(Friendship(resultSet.getBoolean(3), resultSet.getInt(1), resultSet.getInt(2)))
                     }
                 }
                 coroutine.join()
@@ -153,7 +153,7 @@ class DatabaseManager(private val parent: MainActivity) {
     }
 
     fun getNamesAndIDs(): Int {
-        isUsersReady
+        isUsersReady = false
         users.clear()
         val prepStatement = connection.prepareStatement("SELECT \"id\", \"username\" FROM \"users\"")
         GlobalScope.launch {
@@ -165,6 +165,69 @@ class DatabaseManager(private val parent: MainActivity) {
             isUsersReady = true
         }
         return users.size
+    }
+
+    fun addFriendRequest(rId: Int) {
+        GlobalScope.launch {
+            val prepStatement = connection.prepareStatement("INSERT INTO \"friends\" VALUES (?, ?, false)")
+            prepStatement.setInt(1, userID)
+            prepStatement.setInt(2, rId)
+            prepStatement.execute()
+        }
+    }
+
+    fun acceptFriendship(sId: Int, rId: Int) {
+        GlobalScope.launch {
+            val prepStatement = connection.prepareStatement("UPDATE \"friends\" SET \"stat\" = true WHERE \"sId\" = ? AND \"rId\" = ?")
+            prepStatement.setInt(1, sId)
+            prepStatement.setInt(2, rId)
+            prepStatement.execute()
+        }
+    }
+
+    fun getUserAchievementsJson() {
+        GlobalScope.launch {
+            val prepStatement = connection.prepareStatement("SELECT \"achievements\" FROM \"users\" WHERE \"username\" = ?")
+            prepStatement.setString(1, username)
+            val resultSet = prepStatement.executeQuery()
+            if (resultSet.next()) {
+                val json = resultSet.getString(1)
+                achJson = Gson().fromJson(json, JsonObject::class.java)
+            }
+        }
+    }
+
+    fun saveUserAchievementsJson() {
+        GlobalScope.launch {
+            val prepStatement = connection.prepareStatement("UPDATE \"users\" SET \"achievements\" = ? WHERE \"username\" = ?")
+            val pgJson = PGobject()
+            pgJson.type = "json"
+            pgJson.value = achJson.toString()
+            prepStatement.setObject(1, pgJson)
+            prepStatement.setString(2, username)
+
+            prepStatement.executeUpdate()
+        }
+    }
+
+    fun getUserById(id: Int): User {
+        var json = ""
+        var regDate = Date.valueOf("2009-09-09")
+        var username = ""
+        val prepStatement = connection.prepareStatement("SELECT \"achievements\", \"regDate\", \"username\" FROM \"users\" WHERE \"id\" = ?")
+        prepStatement.setInt(1, id)
+        runBlocking {
+            val coroutine = GlobalScope.launch{
+                val resultSet = prepStatement.executeQuery()
+                if (resultSet.next()) {
+                    json = resultSet.getString(1)
+                    regDate = resultSet.getDate(2)
+                    username = resultSet.getString(3)
+                }
+            }
+            coroutine.join()
+        }
+        return User(id, username, json, regDate)
     }
 
 }

@@ -4,6 +4,7 @@ import android.app.AlertDialog
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
+import android.content.res.Configuration
 import android.os.Bundle
 import android.util.AttributeSet
 import android.util.Log
@@ -60,17 +61,9 @@ class ProfileBase: FragmentActivity() {
     var steamId = ""
     var githubKey = ""
 
-    /*lateinit var app.githubUserController: GithubUserController
-    lateinit var app.spotifyController: SpotifyController
-    lateinit var app.githubController: GithubController
-    lateinit var app.steamController: SteamController*/
-
-    //TODO: Делать систему друзей: система запросов на дружбу, приём запросов, оформление списка друзей
+    //TODO: Тестировать приложение, поправить стили
 
 
-    init {
-
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -80,6 +73,7 @@ class ProfileBase: FragmentActivity() {
         setContentView(R.layout.profile_base_layout)
 
         app.databaseManager.getUserId()
+        app.databaseManager.getUserAchievementsJson()
 
         currentUser = getSharedPreferences(getString(R.string.auth_prefs), Context.MODE_PRIVATE).getString("authedUser", "")!!
 
@@ -148,6 +142,11 @@ class ProfileBase: FragmentActivity() {
 
 
 
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        app = (applicationContext as App)
     }
 
     fun setGithubController() {
@@ -362,11 +361,6 @@ class ProfileBase: FragmentActivity() {
                 }
             }
         }
-
-        /*supportFragmentManager.commitNow {
-            setReorderingAllowed(true)
-            replace(R.id.profile_fragment_container, achList)
-        }*/
 
         when (app.selectedPage) {
             "Достижения" -> {

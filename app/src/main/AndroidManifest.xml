@@ -2,9 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.belov.agregator">
 
-    <queries>
-        <package android:name="com.sec.android.app.shealth" />
-    </queries>
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -29,7 +26,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".profile.ProfileBase"/>
+        <activity android:name=".profile.FriendProfile">
+
+        </activity>
+        <activity android:name=".profile.ProfileBase"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden">
+
+        </activity>
     </application>
 
 </manifest>

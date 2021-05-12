@@ -59,19 +59,24 @@ class SteamController(val apiKey: String, val steamId: String, val storage: Stea
     }
 
     fun getFriends() {
-        val call = steam.getFriends(apiKey, steamId)
-        call.enqueue(this)
+        if (isKeySet) {
+            val call = steam.getFriends(apiKey, steamId)
+            call.enqueue(this)
+        }
     }
 
     private fun getAchievements() {
-        val call = steam.getAchievements(currentGame, apiKey, steamId)
-        call.enqueue(this)
-
+        if (isKeySet) {
+            val call = steam.getAchievements(currentGame, apiKey, steamId)
+            call.enqueue(this)
+        }
     }
 
     fun getGames() {
-        val call = steam.getGames(apiKey, steamId)
-        call.enqueue(this)
+        if (isKeySet) {
+            val call = steam.getGames(apiKey, steamId)
+            call.enqueue(this)
+        }
     }
 
     fun checkKey(key: String) : Boolean {
@@ -88,8 +93,6 @@ class SteamController(val apiKey: String, val steamId: String, val storage: Stea
         }
         return isKeyValid
     }
-
-    //TODO("СДелать подсчёт достижений")
 
     fun countAllAchievements() {
         GlobalScope.launch {
@@ -154,7 +157,7 @@ class SteamController(val apiKey: String, val steamId: String, val storage: Stea
 
     override fun onFailure(call: Call<JsonObject>?, t: Throwable?) {
 
-        Log.d("DEBUG!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", t?.message)
+        Log.d("DEBUG!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", t?.message!!)
     }
 
     fun clearData() {

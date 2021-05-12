@@ -1,7 +1,6 @@
 package com.belov.agregator.database
 
-import android.app.AlertDialog
-import com.belov.agregator.MainActivity
+import com.belov.agregator.App
 import com.belov.agregator.utilities.Friendship
 import com.belov.agregator.utilities.User
 import com.belov.agregator.utilities.NewBool
@@ -17,36 +16,54 @@ import java.sql.Date
 import java.sql.DriverManager
 import kotlin.properties.Delegates
 
-class DatabaseManager(private val parent: MainActivity) {
+class DatabaseManager(private val parent: App) {
 
     private lateinit var username: String;
     private lateinit var passwordHash: String;
     var userID by Delegates.notNull<Int>();
-    var state: NewBool = NewBool(parent)
+    lateinit var state: NewBool
+    var hasErrorOccurred = false
     val users: ArrayList<User> = arrayListOf()
     var isUsersReady = false
+
     lateinit var achJson: JsonObject
 
     lateinit var connection: Connection;
+
     init {
+        if (parent.isMainActivityInitialized()) {
+            state = NewBool(parent.mainActivity)
+        }
+
         GlobalScope.launch {
             try {
-                connection = DriverManager.getConnection("jdbc:postgresql://192.168.3.18:5432/agregator", "postgres", "azl41kmng85!_")
+                connection = DriverManager.getConnection("jdbc:postgresql://188.134.66.115:5432/agregator", "postgres", "azl41kmng85!_")
 
             } catch (e: PSQLException) {
                 if (e.serverErrorMessage == null) {
-                    parent.runOnUiThread {
+                    if (this@DatabaseManager::state.isInitialized) {
+                        state.set(false)
+                    }
+
+                    hasErrorOccurred = true
+
+                    /*parent.runOnUiThread {
                         parent.onValueChanged(false)
                         val builder = AlertDialog.Builder(parent)
                         val checkDialog = builder.setCancelable(false).setTitle("Сервер недоступен").setMessage("Сервер недоступен. Извиняемся за неудобства.").create()
                         checkDialog.show()
-                    }
+                    }*/
+                    parent.mainActivity.onValueChanged(false)
                 }
             }
-            parent.runOnUiThread {
+            //parent.runOnUiThread {
+            if (this@DatabaseManager::state.isInitialized) {
                 state.set(true)
             }
+            hasErrorOccurred = false
+            //}
         }
+
     }
 
     fun getUserPasswordHash() {
@@ -230,4 +247,7 @@ class DatabaseManager(private val parent: MainActivity) {
         return User(id, username, json, regDate)
     }
 
+    fun isConnectInitialized(): Boolean {
+        return this::connection.isInitialized
+    }
 }

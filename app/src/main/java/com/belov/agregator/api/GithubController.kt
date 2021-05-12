@@ -124,7 +124,7 @@ class GithubController(val currentGithubUser: String, val storage: GithubDataSto
     }
 
     override fun onFailure(call: Call<JsonArray>?, t: Throwable?) {
-        Log.d("_________________________________", t?.message)
+        Log.d("_________________________________", t?.message!!)
     }
 
     fun clearData() {

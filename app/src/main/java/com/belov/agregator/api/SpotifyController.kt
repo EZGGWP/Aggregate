@@ -14,6 +14,7 @@ import kotlin.reflect.KProperty
 
 class SpotifyController(val apiKey: String, val storage: SpotifyDataStorage): Callback<JsonObject> {
 
+    var isKeySet = false
     var spotify: SpotifyApiClient
     var totalLikedTracks = 0
     var totalFollowedArtists = 0
@@ -24,6 +25,11 @@ class SpotifyController(val apiKey: String, val storage: SpotifyDataStorage): Ca
     var onReqsComplete: ((Int, Int) -> Unit)? = null
 
     init {
+
+        if (apiKey.isNotEmpty()) {
+            isKeySet = true;
+        }
+
         val retrofit = Retrofit.Builder().baseUrl("https://api.spotify.com/v1/").addConverterFactory(
             GsonConverterFactory.create(GsonBuilder().create())
         ).build()
@@ -31,18 +37,24 @@ class SpotifyController(val apiKey: String, val storage: SpotifyDataStorage): Ca
     }
 
     fun getLikedTracks() {
-        val call = spotify.getLikedTracks("Bearer $apiKey")
-        call.enqueue(this)
+        if (isKeySet) {
+            val call = spotify.getLikedTracks("Bearer $apiKey")
+            call.enqueue(this)
+        }
     }
 
     fun getFollowedArtists() {
-        val call = spotify.getFollowedArtists("Bearer $apiKey", "artist")
-        call.enqueue(this)
+        if (isKeySet) {
+            val call = spotify.getFollowedArtists("Bearer $apiKey", "artist")
+            call.enqueue(this)
+        }
     }
 
     fun getPlaylists() {
-        val call = spotify.getPlaylists("Bearer $apiKey")
-        call.enqueue(this)
+        if (isKeySet) {
+            val call = spotify.getPlaylists("Bearer $apiKey")
+            call.enqueue(this)
+        }
     }
 
     override fun onResponse(call: Call<JsonObject>?, response: Response<JsonObject>?) {
@@ -51,21 +63,21 @@ class SpotifyController(val apiKey: String, val storage: SpotifyDataStorage): Ca
                 //response.body().get("artists").asJsonObject.get("href").asString.contains("following") -> {
                 storage.totalFollowedArtists = response.body().get("artists").asJsonObject.get("total").asInt
                 completedReqs++;
-                Log.d("Followed _______________________________________", totalFollowedArtists.toString())
+                Log.d("Followed", totalFollowedArtists.toString())
                 //}
             } else {
                 when {
                     response.body().get("href").asString.contains("tracks") -> {
                         storage.totalLikedTracks = response.body().get("total").asInt
                         completedReqs++;
-                        Log.d("Liked _______________________________________", totalLikedTracks.toString()
+                        Log.d("Liked", totalLikedTracks.toString()
                         )
                     }
 
                     response.body().get("href").asString.contains("playlists") -> {
                         storage.totalPlaylists = response.body().get("total").asInt
                         completedReqs++;
-                        Log.d("Playlists _______________________________________", totalPlaylists.toString()
+                        Log.d("Playlists", totalPlaylists.toString()
                         )
                     }
 
@@ -76,7 +88,7 @@ class SpotifyController(val apiKey: String, val storage: SpotifyDataStorage): Ca
     }
 
     override fun onFailure(call: Call<JsonObject>?, t: Throwable?) {
-        TODO("Not yet implemented")
+
     }
 
     fun clearData() {

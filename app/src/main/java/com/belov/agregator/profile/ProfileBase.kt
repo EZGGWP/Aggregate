@@ -1,6 +1,7 @@
 package com.belov.agregator.profile
 
 import android.app.AlertDialog
+import android.app.Dialog
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
@@ -11,8 +12,8 @@ import android.util.Log
 import android.view.View
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.commitNow
-import androidx.lifecycle.ViewModelProvider
 import com.belov.agregator.App
+import com.belov.agregator.MainActivity
 import com.belov.agregator.R
 import com.belov.agregator.api.*
 import com.belov.agregator.profil.Profile
@@ -26,6 +27,7 @@ import com.spotify.sdk.android.authentication.AuthenticationClient
 import com.spotify.sdk.android.authentication.AuthenticationRequest
 import com.spotify.sdk.android.authentication.AuthenticationResponse
 import kotlinx.android.synthetic.main.profile_base_layout.*
+import kotlin.system.exitProcess
 
 class ProfileBase: FragmentActivity() {
     private lateinit var currentUser: String
@@ -61,7 +63,10 @@ class ProfileBase: FragmentActivity() {
     var steamId = ""
     var githubKey = ""
 
+    lateinit var noKeysDialog: Dialog
+
     //TODO: Тестировать приложение, поправить стили
+    //TODO: БАГИ: Получение данных не работает, авторизация в бекстеке, вылеты при конфигченже при обновлении достижений, вылет после регистрации
 
 
 
@@ -72,12 +77,18 @@ class ProfileBase: FragmentActivity() {
 
         setContentView(R.layout.profile_base_layout)
 
+        currentUser = getSharedPreferences(getString(R.string.auth_prefs), Context.MODE_PRIVATE).getString("authedUser", "")!!
+
+        app.databaseManager.setCurrentUserName(currentUser)
         app.databaseManager.getUserId()
         app.databaseManager.getUserAchievementsJson()
 
-        currentUser = getSharedPreferences(getString(R.string.auth_prefs), Context.MODE_PRIVATE).getString("authedUser", "")!!
 
-        val keys = getSharedPreferences(getString(R.string.auth_prefs), Context.MODE_PRIVATE)?.getString(currentUser, "")
+
+        val keys = getSharedPreferences(getString(R.string.auth_prefs), Context.MODE_PRIVATE)?.getString(
+            currentUser,
+            ""
+        )
         if (keys?.length != 0) {
             val keysList = keys?.split(";")
             steamKey = keysList!![0]
@@ -87,11 +98,10 @@ class ProfileBase: FragmentActivity() {
 
         if (steamKey.isEmpty() && steamId.isEmpty() && githubKey.isEmpty() && !app.isMissingKeysWarningShown) {
             val builder = AlertDialog.Builder(this)
-            builder.setMessage("Вы не добавили данные Steam и GitHub. Получение данных с этих сервисов будет недоступно")
-                    .setPositiveButton("Понятно") { _: DialogInterface, _: Int ->
-                        app.isMissingKeysWarningShown = true
-                    }
-                    .show()
+            noKeysDialog = builder.setMessage("Вы не добавили данные Steam и GitHub. Получение данных с этих сервисов будет недоступно").setPositiveButton("Понятно") { dialog: DialogInterface, _: Int ->
+                app.isMissingKeysWarningShown = true
+                dialog.cancel() }.create()
+            noKeysDialog.show()
         }
         if (!app.isGithubUserControllerInitialized && !app.isGithubControllerInitialized) {
             setGithubUserController()
@@ -131,7 +141,8 @@ class ProfileBase: FragmentActivity() {
         bundle.putString("user", currentUser)
         bundle2.putString("user", currentUser)
         val refreshListener = NewListener(this)
-        bundle2.putSerializable("listener", refreshListener)
+        //bundle2.putSerializable("listener", refreshListener)
+        app.listener = refreshListener
         bundle2.putParcelableArrayList("list", ArrayList<Achievement>(app.achievementList))
 
         profile.arguments = bundle
@@ -151,7 +162,11 @@ class ProfileBase: FragmentActivity() {
 
     fun setGithubController() {
         if (app.githubUserController.getUser() != null && app.githubUserController.checkUser()) {
-            app.githubController = GithubController(app.githubUserController.currentGithubUser, githubStorage, githubKey)
+            app.githubController = GithubController(
+                app.githubUserController.currentGithubUser,
+                githubStorage,
+                githubKey
+            )
             app.githubController.initializedFor = currentUser
         } else {
             app.githubController = GithubController("", githubStorage, githubKey)
@@ -180,24 +195,35 @@ class ProfileBase: FragmentActivity() {
             val response = AuthenticationClient.getResponse(resultCode, data)
             when(response.type) {
                 AuthenticationResponse.Type.TOKEN -> {
-                    Log.d("Succ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^", response.accessToken)
+                    Log.d("Succ", response.accessToken)
                     SPOTIFY_ACCESS_TOKEN = response.accessToken
                     app.spotifyController = SpotifyController(SPOTIFY_ACCESS_TOKEN, spotifyStorage)
                     getApiData()
                 }
 
                 AuthenticationResponse.Type.ERROR -> {
-                    Log.d("Error ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^", response.error)
+                    Log.d("Error", response.error)
                 }
+
+                AuthenticationResponse.Type.EMPTY -> {
+                    authenticateSpotify()
+                }
+
                 else -> {
-                    Log.d("Unknown ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^", "Unknown response")
+                    Log.d("Unknown", "Unknown response")
                 }
             }
+        } else {
+
         }
     }
 
     fun authenticateSpotify() {
-        val reqBuilder = AuthenticationRequest.Builder(CLIENT_ID, AuthenticationResponse.Type.TOKEN, REDIRECT_URI)
+        val reqBuilder = AuthenticationRequest.Builder(
+            CLIENT_ID,
+            AuthenticationResponse.Type.TOKEN,
+            REDIRECT_URI
+        )
         reqBuilder.setScopes(arrayOf(SCOPES))
         val request = reqBuilder.build()
         AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request)
@@ -231,7 +257,7 @@ class ProfileBase: FragmentActivity() {
             }
 
             app.githubController.onReposComplete = { _, new ->
-                Log.d("REPO COUNTER DEBUG____________________________", "$new/${app.githubController.storage.repoCount}")
+                Log.d("REPO COUNTER DEBUG", "$new/${app.githubController.storage.repoCount}")
                 if (new == app.githubController.storage.repoCount) {
                     isGithubReposReady = true
                     if (isGithubReady && isSpotifyReady && isSteamReady && isSteamGamesReady && isGithubReposReady) {
@@ -244,13 +270,17 @@ class ProfileBase: FragmentActivity() {
             isGithubReposReady = true
         }
 
-        app.spotifyController.onReqsComplete = { _, new ->
-            if (new == 3) {
-                isSpotifyReady = true
-                if (isGithubReady && isSpotifyReady && isSteamReady && isSteamGamesReady && isGithubReposReady) {
-                    updateUi()
+        if (app.spotifyController.isKeySet) {
+            app.spotifyController.onReqsComplete = { _, new ->
+                if (new == 3) {
+                    isSpotifyReady = true
+                    if (isGithubReady && isSpotifyReady && isSteamReady && isSteamGamesReady && isGithubReposReady) {
+                        updateUi()
+                    }
                 }
             }
+        } else {
+            isSpotifyReady = true
         }
 
 
@@ -265,7 +295,7 @@ class ProfileBase: FragmentActivity() {
             }
 
             app.steamController.onGamesComplete = { _, new ->
-                Log.d("GAME COUNTER DEBUG____________________________", "$new/${app.steamController.storage.gamesCount}")
+                Log.d("GAME COUNTER DEBUG", "$new/${app.steamController.storage.gamesCount}")
                 if (new == app.steamController.storage.gamesCount) {
                     isSteamGamesReady = true
                     if (isGithubReady && isSpotifyReady && isSteamReady && isSteamGamesReady && isGithubReposReady) {
@@ -285,13 +315,12 @@ class ProfileBase: FragmentActivity() {
     }
 
     fun initUi() {
-        //TODO: где-то теряются данные...
         if (app.achievementList.isEmpty()) {
             //app.achievementList.clear()
             app.achievementList.addAll(steamStorage.createAchievements())
             app.achievementList.addAll(spotifyStorage.createAchievement())
             app.achievementList.addAll(githubStorage.createAchievements())
-            app.achievementList = ArrayList(app.achievementList.sortedBy { it.id  })
+            app.achievementList = ArrayList(app.achievementList.sortedBy { it.id })
         }
 
 
@@ -303,7 +332,8 @@ class ProfileBase: FragmentActivity() {
         val bundle2 = Bundle()
         bundle2.putString("user", currentUser)
         val refreshListener = NewListener(this)
-        bundle2.putSerializable("listener", refreshListener)
+        app.listener = refreshListener
+        //bundle2.putSerializable("listener", refreshListener)
         bundle2.putParcelableArrayList("list", app.achievementList)
         profile = Profile()
         achList = AchievementList()
@@ -403,14 +433,15 @@ class ProfileBase: FragmentActivity() {
         app.achievementList.addAll(steamStorage.createAchievements())
         app.achievementList.addAll(spotifyStorage.createAchievement())
         app.achievementList.addAll(githubStorage.createAchievements())
-        app.achievementList = ArrayList(app.achievementList.sortedBy { it.id  })
+        app.achievementList = ArrayList(app.achievementList.sortedBy { it.id })
 
         val bundle = Bundle()
         bundle.putString("user", currentUser)
         val bundle2 = Bundle()
         bundle2.putString("user", currentUser)
         val refreshListener = NewListener(this)
-        bundle2.putSerializable("listener", refreshListener)
+        app.listener = refreshListener
+        //bundle2.putSerializable("listener", refreshListener)
         bundle2.putParcelableArrayList("list", app.achievementList)
         profile = Profile()
         achList = AchievementList()
@@ -462,9 +493,30 @@ class ProfileBase: FragmentActivity() {
 
     fun cleanAndFinish(resultCode: Int) {
         app.achievementList.clear()
-        getSharedPreferences(getString(R.string.auth_prefs), Context.MODE_PRIVATE)?.edit()?.putString("authedUser", "")?.apply()
+        getSharedPreferences(getString(R.string.auth_prefs), Context.MODE_PRIVATE)?.edit()?.putString(
+            "authedUser",
+            ""
+        )?.apply()
         setResult(resultCode)
+        val intent = Intent(applicationContext, MainActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
+
         finish()
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        exitProcess(0)
+
+    }
+
+    override fun onDestroy() {
+        if (this::noKeysDialog.isInitialized) {
+            noKeysDialog.cancel()
+        }
+        super.onDestroy()
+
     }
 
 }

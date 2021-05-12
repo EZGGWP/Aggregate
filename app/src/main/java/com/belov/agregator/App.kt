@@ -1,18 +1,17 @@
 package com.belov.agregator
 
+import android.app.AlertDialog
 import android.app.Application
-import android.content.Intent
-import android.os.Bundle
-import android.os.Parcel
-import android.os.Parcelable
-import android.util.Log
+import android.app.Dialog
+import android.content.res.Configuration
 import com.belov.agregator.api.GithubController
 import com.belov.agregator.api.GithubUserController
 import com.belov.agregator.api.SpotifyController
 import com.belov.agregator.api.SteamController
 import com.belov.agregator.database.DatabaseManager
 import com.belov.agregator.utilities.Achievement
-import java.io.Serializable
+import com.belov.agregator.utilities.NewBoolListener
+import com.belov.agregator.utilities.NewListener
 
 class App() : Application() {
 
@@ -23,6 +22,10 @@ class App() : Application() {
     lateinit var spotifyController: SpotifyController
     lateinit var githubController: GithubController
     lateinit var steamController: SteamController
+    lateinit var unreachableDialog: Dialog
+    lateinit var checkDialog: Dialog
+    lateinit var mainActivity: MainActivity
+    lateinit var listener: NewListener
 
     lateinit var databaseManager: DatabaseManager
 
@@ -30,25 +33,25 @@ class App() : Application() {
         get() {
             return this::githubUserController.isInitialized
         }
-        set(value) {}
+        set(_) {}
 
     var isGithubControllerInitialized: Boolean
         get() {
             return this::githubController.isInitialized
         }
-        set(value) {}
+        set(_) {}
 
     var isSteamControllerInitialized: Boolean
         get() {
             return this::steamController.isInitialized
         }
-        set(value) {}
+        set(_) {}
 
     var isSpotifyControllerInitialized: Boolean
         get() {
             return this::spotifyController.isInitialized
         }
-        set(value) {}
+        set(_) {}
 
     var isMissingKeysWarningShown: Boolean = false
 
@@ -56,8 +59,31 @@ class App() : Application() {
     override fun onCreate() {
         super.onCreate()
 
+        databaseManager = DatabaseManager(this)
     }
 
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+    }
 
+    fun showDialog() {
+        //parent.runOnUiThread {
+            //parent.onValueChanged(false)
+            /*val builder = AlertDialog.Builder(applicationContext)
+            unreachableDialog = builder.setCancelable(false).setTitle("Сервер недоступен").setMessage("Сервер недоступен. Извиняемся за неудобства.").create()
+            unreachableDialog.show()*/
+        //}
+    }
 
+    /*override fun onValueChanged(value: Boolean) {
+        if (value) checkDialog.hide()
+    }*/
+
+    fun isConnectInitialized(): Boolean {
+        return databaseManager.isConnectInitialized()
+    }
+
+    fun isMainActivityInitialized() : Boolean {
+        return this::mainActivity.isInitialized
+    }
 }

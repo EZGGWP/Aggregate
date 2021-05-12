@@ -15,10 +15,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Agregator">
 
-        <meta-data
-            android:name="com.samsung.android.health.permission.read"
-            android:value="com.samsung.health.step_count" />
-
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -5,17 +5,26 @@ plugins {
 }
 
 android {
+    signingConfigs {
+        'Release signing' {
+        storeFile file('C:\\Users\\Nikita\\Documents\\Android\\Keystore\\keystore.jks')
+            storePassword '4upaka8ra!!!'
+            keyAlias 'agregator_key'
+            keyPassword '4upaka8ra!!!'
+        }
+    }
     compileSdkVersion 29
     buildToolsVersion "29.0.3"
 
     defaultConfig {
         applicationId "com.belov.agregator"
-        minSdkVersion 27
+        minSdkVersion 23
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        signingConfig signingConfigs.'Release signing'
     }
 
     buildTypes {

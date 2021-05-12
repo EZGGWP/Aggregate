@@ -25,14 +25,17 @@ class AchievementList() : Fragment() {
         /*currentUser = arguments?.getString("user")!!
         list = (arguments?.getParcelableArrayList<Achievement>("list")?.toList())!!
         listener = arguments?.getSerializable("listener") as NewListener*/
+
+        currentUser = arguments?.getString("user")!!
+        list = (arguments?.getParcelableArrayList<Achievement>("list")?.toList())!!
+        //listener = arguments?.getSerializable("listener") as NewListener
+        listener = (activity as ProfileBase).app.listener
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         //return super.onCreateView(inflater, container, savedInstanceState)
 
-        currentUser = arguments?.getString("user")!!
-        list = (arguments?.getParcelableArrayList<Achievement>("list")?.toList())!!
-        listener = arguments?.getSerializable("listener") as NewListener
+
 
         val layout = inflater.inflate(R.layout.ach_list_layout, container, false)
         val recycler = layout.findViewById<RecyclerView>(R.id.ach_recycler)

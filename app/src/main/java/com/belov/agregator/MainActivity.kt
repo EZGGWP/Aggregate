@@ -9,13 +9,14 @@ import androidx.viewpager2.widget.ViewPager2
 import com.belov.agregator.auth.AuthPagerAdapter
 import com.belov.agregator.database.DatabaseManager
 import com.belov.agregator.profile.ProfileBase
+import com.belov.agregator.utilities.NewBool
 import com.belov.agregator.utilities.NewBoolListener
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 
 
 class MainActivity : FragmentActivity(), NewBoolListener {
-    lateinit var checkDialog: AlertDialog
+    //lateinit var checkDialog: AlertDialog
     lateinit var app: App
     var uiInitialized = false
     var currentUser = ""
@@ -26,38 +27,56 @@ class MainActivity : FragmentActivity(), NewBoolListener {
         super.onCreate(savedInstanceState)
 
         app = applicationContext as App
+        app.mainActivity = this
+        app.databaseManager.state = NewBool(this)
 
-        setContentView(R.layout.activity_main)
+        if (app.databaseManager.hasErrorOccurred) {
+            val builder = AlertDialog.Builder(applicationContext)
+            val unreachableDialog = builder.setCancelable(false).setTitle("Сервер недоступен").setMessage("Сервер недоступен. Извиняемся за неудобства.").create()
+            unreachableDialog.show()
+        } else {
 
-        currentUser = getSharedPreferences(getString(R.string.auth_prefs), Context.MODE_PRIVATE)?.getString("authedUser", "")!!;
+            setContentView(R.layout.activity_main)
+
+            currentUser = getSharedPreferences(getString(R.string.auth_prefs), Context.MODE_PRIVATE)?.getString("authedUser", "")!!;
 
 
-        val builder = AlertDialog.Builder(this)
-        checkDialog = builder.setCancelable(false).setView(R.layout.preloader_layout).create()
-        checkDialog.show()
-        
-        app.databaseManager = DatabaseManager(this)
+            if (!app.isConnectInitialized() && !app.databaseManager.hasErrorOccurred) {
+                val builder = AlertDialog.Builder(this)
+                app.checkDialog = builder.setCancelable(false).setView(R.layout.preloader_layout).create()
+                app.checkDialog.show()
+            }
 
+            if (!uiInitialized && app.isConnectInitialized()) checkCurrentUser()
+
+            //app.databaseManager = DatabaseManager(this)
+        }
 
 
     }
 
     override fun onValueChanged(value: Boolean) {
-        checkDialog.hide()
-        checkCurrentUser()
-        app.databaseManager.getNamesAndIDs()
+        if (value) {
+            runOnUiThread {
+                app.checkDialog.hide()
+                checkCurrentUser()
+            }
+            app.databaseManager.getNamesAndIDs()
+        }
     }
 
     override fun onDestroy() {
+        app.checkDialog.cancel()
         super.onDestroy()
-        checkDialog.dismiss()
     }
 
     fun checkCurrentUser() {
-        if (currentUser!!.isNotEmpty()) {
+        if (currentUser.isNotEmpty()) {
             app.databaseManager.setCurrentUserName(currentUser)
             val intent = Intent(this, ProfileBase::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivityForResult(intent, 1)
+            finish()
         } else {
             initUi()
         }
@@ -84,4 +103,6 @@ class MainActivity : FragmentActivity(), NewBoolListener {
         }
         uiInitialized = true
     }
+
+
 }

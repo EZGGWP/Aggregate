@@ -71,7 +71,7 @@ class GithubUserController(var githubKey: String) : Callback<JsonObject> {
     }
 
     override fun onFailure(call: Call<JsonObject>?, t: Throwable?) {
-        Log.d("______________________________", t?.message)
+        Log.d("______________________________", t?.message!!)
     }
 
     fun checkUser() : Boolean {

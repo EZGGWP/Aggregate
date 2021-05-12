@@ -38,7 +38,7 @@ class AuthFragment() : Fragment() {
 
 
         regMode = arguments?.getBoolean("regMode")!!
-        db = ((context as MainActivity).applicationContext as App).databaseManager
+        db = ((activity as MainActivity).applicationContext as App).databaseManager
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -99,11 +99,7 @@ class AuthFragment() : Fragment() {
                                         loginField.text.toString(),
                                         createHash(passwordField.text.toString())
                                     )
-                                    Toast.makeText(
-                                        context,
-                                        "Регистрация успешна!",
-                                        Toast.LENGTH_LONG
-                                    ).show()
+                                    Toast.makeText(context, "Регистрация успешна!", Toast.LENGTH_LONG).show()
 
                                     val sharedPref = activity?.getSharedPreferences(getString(R.string.auth_prefs), Context.MODE_PRIVATE)
                                     sharedPref?.edit {

@@ -72,6 +72,10 @@ class ProfileKeys : Fragment() {
                             wasAnythingChanged = true
                         }
 
+                        if ((isSteamKeyChecked || isGithubKeyChecked) && (steamKeyField.text!!.isEmpty() || githubKeyField.text!!.isEmpty())) {
+                            wasAnythingChanged = true
+                        }
+
                         var warningString = ""
                         if (!isSteamKeyValid && steamKeyField.text!!.isNotEmpty() && !isSteamKeyChecked) {
                             warningString = "Указанные ключи для Steam некорректны."
@@ -90,6 +94,28 @@ class ProfileKeys : Fragment() {
                                 putString(currentUser, keyString)
                                 apply()
                             }
+
+                            if (steamKeyField.text!!.isEmpty()) {
+                                app.steamController.apiKey = ""
+                                app.steamController.isKeySet = false
+                            } else {
+                                app.steamController.apiKey = steamKeyField.text.toString()
+                                app.steamController.isKeySet = true
+                            }
+                            if (githubKeyField.text!!.isEmpty()) {
+                                app.githubUserController.githubKey = ""
+                                app.githubController.githubKey = ""
+                                app.githubUserController.isKeySet = false
+                                app.githubController.isKeySet = false
+                            } else {
+                                app.githubUserController.githubKey = githubKeyField.text.toString()
+                                app.githubUserController.isKeySet = true
+
+                                app.githubController.githubKey = githubKeyField.text.toString()
+                                app.githubController.isKeySet = true
+                            }
+
+
                             Toast.makeText(context, "Данные успешно сохранены", Toast.LENGTH_LONG).show()
                         } else {
                             Toast.makeText(context, "Вы не внесли изменений", Toast.LENGTH_LONG).show()

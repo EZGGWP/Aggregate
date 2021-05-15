@@ -35,6 +35,7 @@ class Friends : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         app = (activity as ProfileBase).app
+        app.databaseManager.getNamesAndIDs()
         currentUser = arguments?.getString("user")!!
         friendships = (activity as ProfileBase).app.databaseManager.getFriends()
         users = (activity as ProfileBase).app.databaseManager.users
@@ -84,6 +85,7 @@ class Friends : Fragment() {
         recycler = layout.findViewById(R.id.friends_recycler)
         recycler.adapter = FriendsAdapter(friendships, currentUser, requireContext(), app)
         recycler.layoutManager = LinearLayoutManager(context)
+        app.databaseManager.getNamesAndIDs()
         addButton.setOnClickListener {
             val dialog = MaterialDialog(requireContext()).title(R.string.friend_search)
             dialog.show {

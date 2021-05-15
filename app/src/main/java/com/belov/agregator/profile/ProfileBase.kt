@@ -10,6 +10,7 @@ import android.os.Bundle
 import android.util.AttributeSet
 import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.commitNow
 import com.belov.agregator.App
@@ -67,7 +68,6 @@ class ProfileBase: FragmentActivity() {
 
     //TODO: Тестировать приложение, поправить стили
     //TODO: БАГИ: Получение данных не работает, авторизация в бекстеке, вылеты при конфигченже при обновлении достижений, вылет после регистрации
-
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -202,10 +202,12 @@ class ProfileBase: FragmentActivity() {
                 }
 
                 AuthenticationResponse.Type.ERROR -> {
+                    Toast.makeText(applicationContext, "Error received: ${response.error}", Toast.LENGTH_SHORT).show()
                     Log.d("Error", response.error)
                 }
 
                 AuthenticationResponse.Type.EMPTY -> {
+                    Toast.makeText(applicationContext, "Empty received", Toast.LENGTH_SHORT).show()
                     authenticateSpotify()
                 }
 

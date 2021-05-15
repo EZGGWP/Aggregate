@@ -50,34 +50,38 @@ class AuthFragment() : Fragment() {
                 passwordField = layout.findViewById(R.id.password_field)
                 button = layout.findViewById(R.id.authButton)
                 button.setOnClickListener {
-                    db.setCurrentUserNameAndGetHash(loginField.text.toString())
-                    if (db.getHash() != null) {
-                        val result = verifyHash(passwordField.text.toString(), db.getHash()!!)
-                        if (result.verified) {
-                            Toast.makeText(context, "Добро пожаловать", Toast.LENGTH_LONG).show()
+                    if (loginField.text.toString().isNotEmpty() && passwordField.text.toString().isNotEmpty()) {
+                        db.setCurrentUserNameAndGetHash(loginField.text.toString())
+                        if (db.getHash() != null) {
+                            val result = verifyHash(passwordField.text.toString(), db.getHash()!!)
+                            if (result.verified) {
+                                Toast.makeText(context, "Добро пожаловать", Toast.LENGTH_LONG).show()
 
-                            val sharedPref = activity?.getSharedPreferences(getString(R.string.auth_prefs), Context.MODE_PRIVATE)
-                            sharedPref?.edit {
-                                putString("authedUser", loginField.text.toString())
-                                apply()
+                                val sharedPref = activity?.getSharedPreferences(getString(R.string.auth_prefs), Context.MODE_PRIVATE)
+                                sharedPref?.edit {
+                                    putString("authedUser", loginField.text.toString())
+                                    apply()
+                                }
+
+                                val intent = Intent(activity, ProfileBase::class.java)
+                                startActivity(intent)
+
+                                loginField.text.clear();
+                                loginField.clearFocus();
+                                passwordField.text.clear();
+                                passwordField.clearFocus();
+                            } else {
+                                Toast.makeText(context, "Неверный пароль", Toast.LENGTH_LONG).show()
                             }
-
-                            val intent = Intent(activity, ProfileBase::class.java)
-                            startActivity(intent)
-
-                            loginField.text.clear();
-                            loginField.clearFocus();
-                            passwordField.text.clear();
-                            passwordField.clearFocus();
                         } else {
-                            Toast.makeText(context, "Неверный пароль", Toast.LENGTH_LONG).show()
+                            val builder = AlertDialog.Builder(context)
+                            builder.setTitle("Пользователь не найден")
+                                    .setMessage("Пользователь с именем ${loginField.text} не найден. Хотите зарегистрироваться?")
+                                    .setPositiveButton("Да") { _: DialogInterface, _: Int -> activity?.findViewById<TabLayout>(R.id.tabLayout)?.getTabAt(1)?.select() }
+                                    .setNegativeButton("Нет", null).show()
                         }
                     } else {
-                        val builder = AlertDialog.Builder(context)
-                        builder.setTitle("Пользователь не найден")
-                                .setMessage("Пользователь с именем ${loginField.text} не найден. Хотите зарегистрироваться?")
-                                .setPositiveButton("Да") { _: DialogInterface, _: Int -> activity?.findViewById<TabLayout>(R.id.tabLayout)?.getTabAt(1)?.select() }
-                                .setNegativeButton("Нет", null).show()
+                        Toast.makeText(context, "Все поля должны быть заполнены", Toast.LENGTH_SHORT).show()
                     }
                 }
 

@@ -5,6 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.recyclerview.widget.RecyclerView
 import com.belov.agregator.App
 import com.belov.agregator.R
@@ -12,6 +13,7 @@ import com.belov.agregator.storage.GithubDataStorage
 import com.belov.agregator.storage.SpotifyDataStorage
 import com.belov.agregator.storage.SteamDataStorage
 import com.belov.agregator.utilities.Achievement
+import com.google.gson.JsonPrimitive
 import java.lang.reflect.Type
 
 
@@ -33,6 +35,8 @@ class AchievementAdapter(val ach: List<Achievement>, val app: App) : RecyclerVie
         val item = ach[position]
         holder.achName.text = item.name
 
+        holder.achProgress.progressDrawable = AppCompatResources.getDrawable(app.applicationContext, R.drawable.progress_style)
+
 
 
         if (item.progress >= item.goal) {
@@ -42,21 +46,21 @@ class AchievementAdapter(val ach: List<Achievement>, val app: App) : RecyclerVie
             when (item::class.java) {
                 SteamDataStorage.SteamAchievement::class.java -> {
                     val array = app.databaseManager.achJson.getAsJsonObject("achievements").getAsJsonArray("Steam")
-                    if (!array.contains(ach[position].id)) {
+                    if (!array.contains(JsonPrimitive(ach[position].id))) {
                         array.add(ach[position].id)
                         isJsonUpdateNeeded = true
                     }
                 }
                 GithubDataStorage.GithubAchievement::class.java -> {
                     val array = app.databaseManager.achJson.getAsJsonObject("achievements").getAsJsonArray("GitHub")
-                    if (!array.contains(ach[position].id)) {
+                    if (!array.contains(JsonPrimitive(ach[position].id))) {
                         array.add(ach[position].id)
                         isJsonUpdateNeeded = true
                     }
                 }
                 SpotifyDataStorage.SpotifyAchievement::class.java -> {
                     val array = app.databaseManager.achJson.getAsJsonObject("achievements").getAsJsonArray("Spotify")
-                    if (!array.contains(ach[position].id)) {
+                    if (!array.contains(JsonPrimitive(ach[position].id))) {
                         array.add(ach[position].id)
                         isJsonUpdateNeeded = true
                     }

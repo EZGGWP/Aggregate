@@ -106,14 +106,6 @@ class DatabaseManager(private val parent: App) {
         }
     }
 
-    fun getName(): String? {
-        return if (this::username.isInitialized) {
-            this.username
-        } else {
-            null
-        }
-    }
-
     fun getNameCount(username: String): Boolean {
         var unique = false
         runBlocking {

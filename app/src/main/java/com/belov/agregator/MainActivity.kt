@@ -16,7 +16,6 @@ import com.google.android.material.tabs.TabLayoutMediator
 
 
 class MainActivity : FragmentActivity(), NewBoolListener {
-    //lateinit var checkDialog: AlertDialog
     lateinit var app: App
     var uiInitialized = false
     var currentUser = ""
@@ -48,8 +47,6 @@ class MainActivity : FragmentActivity(), NewBoolListener {
             }
 
             if (!uiInitialized && app.isConnectInitialized()) checkCurrentUser()
-
-            //app.databaseManager = DatabaseManager(this)
         }
 
 

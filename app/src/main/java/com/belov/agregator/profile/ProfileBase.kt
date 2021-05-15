@@ -37,8 +37,6 @@ class ProfileBase: FragmentActivity() {
     private val REQUEST_CODE = 30
     private val SCOPES = "user-follow-read,playlist-read-private,playlist-read-collaborative,user-library-read"
     private lateinit var  SPOTIFY_ACCESS_TOKEN: String
-    private var STEAM_ACCESS_TOKEN = "CCB89104478056EE33A85A792CF24EE3"
-    private var STEAM_ID = "76561198113053343"
 
     lateinit var app: App
 
@@ -53,8 +51,6 @@ class ProfileBase: FragmentActivity() {
     var isSteamGamesReady = false
     var isGithubReposReady = false
 
-    //var app.achievementList = arrayListOf<Achievement>()
-
     var profile = Profile()
     var achList = AchievementList()
     var profileKeys = ProfileKeys()
@@ -65,10 +61,6 @@ class ProfileBase: FragmentActivity() {
     var githubKey = ""
 
     lateinit var noKeysDialog: Dialog
-
-    //TODO: Тестировать приложение, поправить стили
-    //TODO: БАГИ: Получение данных не работает, авторизация в бекстеке, вылеты при конфигченже при обновлении достижений, вылет после регистрации
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -141,7 +133,6 @@ class ProfileBase: FragmentActivity() {
         bundle.putString("user", currentUser)
         bundle2.putString("user", currentUser)
         val refreshListener = NewListener(this)
-        //bundle2.putSerializable("listener", refreshListener)
         app.listener = refreshListener
         bundle2.putParcelableArrayList("list", ArrayList<Achievement>(app.achievementList))
 
@@ -318,15 +309,11 @@ class ProfileBase: FragmentActivity() {
 
     fun initUi() {
         if (app.achievementList.isEmpty()) {
-            //app.achievementList.clear()
             app.achievementList.addAll(steamStorage.createAchievements())
             app.achievementList.addAll(spotifyStorage.createAchievement())
             app.achievementList.addAll(githubStorage.createAchievements())
             app.achievementList = ArrayList(app.achievementList.sortedBy { it.id })
         }
-
-
-        //viewModel.achievementList = app.achievementList
 
 
         val bundle = Bundle()
@@ -335,14 +322,11 @@ class ProfileBase: FragmentActivity() {
         bundle2.putString("user", currentUser)
         val refreshListener = NewListener(this)
         app.listener = refreshListener
-        //bundle2.putSerializable("listener", refreshListener)
         bundle2.putParcelableArrayList("list", app.achievementList)
         profile = Profile()
         achList = AchievementList()
         profileKeys = ProfileKeys()
         friends = Friends()
-        //achList.list = achievements2
-        //achList.listener = refreshListener
 
         profile.arguments = bundle
         achList.arguments = bundle2
@@ -443,14 +427,11 @@ class ProfileBase: FragmentActivity() {
         bundle2.putString("user", currentUser)
         val refreshListener = NewListener(this)
         app.listener = refreshListener
-        //bundle2.putSerializable("listener", refreshListener)
         bundle2.putParcelableArrayList("list", app.achievementList)
         profile = Profile()
         achList = AchievementList()
         profileKeys = ProfileKeys()
         friends = Friends()
-        //achList.list = achievements2
-        //achList.listener = refreshListener
 
         profile.arguments = bundle
         achList.arguments = bundle2

@@ -66,19 +66,6 @@ class App() : Application() {
         super.onConfigurationChanged(newConfig)
     }
 
-    fun showDialog() {
-        //parent.runOnUiThread {
-            //parent.onValueChanged(false)
-            /*val builder = AlertDialog.Builder(applicationContext)
-            unreachableDialog = builder.setCancelable(false).setTitle("Сервер недоступен").setMessage("Сервер недоступен. Извиняемся за неудобства.").create()
-            unreachableDialog.show()*/
-        //}
-    }
-
-    /*override fun onValueChanged(value: Boolean) {
-        if (value) checkDialog.hide()
-    }*/
-
     fun isConnectInitialized(): Boolean {
         return databaseManager.isConnectInitialized()
     }

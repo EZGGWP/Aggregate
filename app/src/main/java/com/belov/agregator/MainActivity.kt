@@ -13,18 +13,22 @@ import com.belov.agregator.utilities.NewBool
 import com.belov.agregator.utilities.NewBoolListener
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
+import com.google.firebase.analytics.FirebaseAnalytics
+import java.lang.RuntimeException
 
 
 class MainActivity : FragmentActivity(), NewBoolListener {
     lateinit var app: App
     var uiInitialized = false
     var currentUser = ""
+    lateinit var mFirebaseAnalytics: FirebaseAnalytics
 
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this)
         app = applicationContext as App
         app.mainActivity = this
         app.databaseManager.state = NewBool(this)

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Agregator</string>
+    <string name="app_name">Aggregate</string>
     <string name="auth_prefs">auth_preferences.xml</string>
     <string name="friend_search">Добавить друга</string>
 </resources>

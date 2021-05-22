@@ -35,34 +35,8 @@ class DatabaseManager(private val parent: App) {
             state = NewBool(parent.mainActivity)
         }
 
-        GlobalScope.launch {
-            try {
-                connection = DriverManager.getConnection("jdbc:postgresql://188.134.66.115:5432/agregator", "postgres", "azl41kmng85!_")
+        getNewConnection()
 
-            } catch (e: PSQLException) {
-                if (e.serverErrorMessage == null) {
-                    if (this@DatabaseManager::state.isInitialized) {
-                        state.set(false)
-                    }
-
-                    hasErrorOccurred = true
-
-                    /*parent.runOnUiThread {
-                        parent.onValueChanged(false)
-                        val builder = AlertDialog.Builder(parent)
-                        val checkDialog = builder.setCancelable(false).setTitle("Сервер недоступен").setMessage("Сервер недоступен. Извиняемся за неудобства.").create()
-                        checkDialog.show()
-                    }*/
-                    parent.mainActivity.onValueChanged(false)
-                }
-            }
-            //parent.runOnUiThread {
-            if (this@DatabaseManager::state.isInitialized) {
-                state.set(true)
-            }
-            hasErrorOccurred = false
-            //}
-        }
 
     }
 
@@ -241,5 +215,29 @@ class DatabaseManager(private val parent: App) {
 
     fun isConnectInitialized(): Boolean {
         return this::connection.isInitialized
+    }
+
+    fun getNewConnection(): Connection {
+        GlobalScope.launch {
+            try {
+                connection = DriverManager.getConnection("jdbc:postgresql://188.134.66.115:5432/agregator", "postgres", "azl41kmng85!_")
+
+            } catch (e: PSQLException) {
+                if (e.serverErrorMessage == null) {
+                    if (this@DatabaseManager::state.isInitialized) {
+                        state.set(false)
+                    }
+
+                    hasErrorOccurred = true
+
+                    parent.mainActivity.onValueChanged(false)
+                }
+            }
+            if (this@DatabaseManager::state.isInitialized) {
+                state.set(true)
+            }
+            hasErrorOccurred = false
+        }
+        return connection
     }
 }

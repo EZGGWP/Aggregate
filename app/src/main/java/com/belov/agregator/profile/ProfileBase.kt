@@ -193,12 +193,12 @@ class ProfileBase: FragmentActivity() {
                 }
 
                 AuthenticationResponse.Type.ERROR -> {
-                    Toast.makeText(applicationContext, "Error received: ${response.error}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(applicationContext, "Что-то пошло не так...", Toast.LENGTH_SHORT).show()
                     Log.d("Error", response.error)
                 }
 
                 AuthenticationResponse.Type.EMPTY -> {
-                    Toast.makeText(applicationContext, "Empty received", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(applicationContext, "Что-то пошло не так...", Toast.LENGTH_SHORT).show()
                     authenticateSpotify()
                 }
 
@@ -206,8 +206,6 @@ class ProfileBase: FragmentActivity() {
                     Log.d("Unknown", "Unknown response")
                 }
             }
-        } else {
-
         }
     }
 

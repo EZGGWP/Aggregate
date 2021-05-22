@@ -22,7 +22,6 @@ class App() : Application() {
     lateinit var spotifyController: SpotifyController
     lateinit var githubController: GithubController
     lateinit var steamController: SteamController
-    lateinit var unreachableDialog: Dialog
     lateinit var checkDialog: Dialog
     lateinit var mainActivity: MainActivity
     lateinit var listener: NewListener
@@ -72,5 +71,9 @@ class App() : Application() {
 
     fun isMainActivityInitialized() : Boolean {
         return this::mainActivity.isInitialized
+    }
+
+    fun isCheckDialogInitialized(): Boolean {
+        return this::checkDialog.isInitialized
     }
 }

@@ -26,11 +26,13 @@ class MainActivity : FragmentActivity(), NewBoolListener {
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        app = applicationContext as App
+        app.mainActivity = this
+
         super.onCreate(savedInstanceState)
 
         mFirebaseAnalytics = FirebaseAnalytics.getInstance(this)
-        app = applicationContext as App
-        app.mainActivity = this
+
         app.databaseManager.state = NewBool(this)
 
         if (app.databaseManager.hasErrorOccurred) {
@@ -57,7 +59,7 @@ class MainActivity : FragmentActivity(), NewBoolListener {
     }
 
     override fun onValueChanged(value: Boolean) {
-        if (value) {
+        if (value && app.isCheckDialogInitialized()) {
             runOnUiThread {
                 app.checkDialog.hide()
                 checkCurrentUser()
@@ -67,8 +69,10 @@ class MainActivity : FragmentActivity(), NewBoolListener {
     }
 
     override fun onDestroy() {
-        app.checkDialog.cancel()
         super.onDestroy()
+        if (app.isCheckDialogInitialized()) {
+            app.checkDialog.cancel()
+        }
     }
 
     fun checkCurrentUser() {

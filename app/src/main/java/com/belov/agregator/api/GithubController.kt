@@ -90,7 +90,7 @@ class GithubController(val currentGithubUser: String, val storage: GithubDataSto
 
 
     override fun onResponse(call: Call<JsonArray>?, response: Response<JsonArray>?) {
-        if (response != null) {
+        if (response?.body() != null) {
             if (response.body().size() != 0) {
                 when {
                     // Repos
@@ -120,6 +120,8 @@ class GithubController(val currentGithubUser: String, val storage: GithubDataSto
             } else {
                 completedReposReqs++;
             }
+        } else {
+            completedReposReqs++;
         }
     }
 

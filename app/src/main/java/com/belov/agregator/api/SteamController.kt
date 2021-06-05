@@ -24,7 +24,7 @@ import java.util.*
 import kotlin.properties.Delegates
 import kotlin.reflect.KProperty
 
-class SteamController(var apiKey: String, val steamId: String, val storage: SteamDataStorage): Callback<JsonObject> {
+class SteamController(var apiKey: String, var steamId: String, val storage: SteamDataStorage): Callback<JsonObject> {
     var isKeySet = false
 
     var initializedFor = ""
@@ -42,7 +42,6 @@ class SteamController(var apiKey: String, val steamId: String, val storage: Stea
         onGamesComplete?.invoke(i, i1)
     }
     var onGamesComplete: ((Int, Int) -> Unit)? = null
-    var steamKey = ""
 
 
 

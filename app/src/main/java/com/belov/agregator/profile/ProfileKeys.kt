@@ -7,11 +7,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.edit
 import androidx.core.text.trimmedLength
 import androidx.fragment.app.Fragment
+import com.afollestad.materialdialogs.MaterialDialog
 import com.belov.agregator.R
 import com.google.android.material.textfield.TextInputEditText
 
@@ -30,6 +32,15 @@ class ProfileKeys : Fragment() {
         val steamIdField = layout.findViewById<TextInputEditText>(R.id.steam_id_field)
         val githubKeyField = layout.findViewById<TextInputEditText>(R.id.github_key_field)
         val saveKeysButton = layout.findViewById<Button>(R.id.save_keys_button)
+        val helpButton = layout.findViewById<ImageView>(R.id.help_button)
+
+        helpButton.setOnClickListener {
+            val dialog = MaterialDialog(requireContext())
+            dialog.show {
+                title(null, "Создание ключей API")
+                message(R.string.help_text)
+            }
+        }
 
         var isSteamKeyChecked = false
         var isGithubKeyChecked = false
@@ -76,6 +87,9 @@ class ProfileKeys : Fragment() {
                             wasAnythingChanged = true
                         }
 
+                        if (githubKey != githubKeyField.text.toString() || steamKey != steamKeyField.text.toString() || steamId != steamIdField.text.toString()) {
+                            wasAnythingChanged = true
+                        }
                         var warningString = ""
                         if (!isSteamKeyValid && steamKeyField.text!!.isNotEmpty() && !isSteamKeyChecked) {
                             warningString = "Указанные ключи для Steam некорректны."
@@ -102,6 +116,13 @@ class ProfileKeys : Fragment() {
                                 app.steamController.apiKey = steamKeyField.text.toString()
                                 app.steamController.isKeySet = true
                             }
+
+                            if (steamIdField.text!!.isEmpty()) {
+                                app.steamController.steamId = ""
+                            } else {
+                                app.steamController.steamId = steamIdField.text.toString()
+                            }
+
                             if (githubKeyField.text!!.isEmpty()) {
                                 app.githubUserController.githubKey = ""
                                 app.githubController.githubKey = ""
@@ -115,6 +136,8 @@ class ProfileKeys : Fragment() {
                                 app.githubController.isKeySet = true
                             }
 
+                            isGithubKeyChecked = false
+                            isSteamKeyChecked = false
 
                             Toast.makeText(context, "Данные успешно сохранены", Toast.LENGTH_LONG).show()
                         } else {

@@ -2,4 +2,24 @@
     <string name="app_name">Aggregate</string>
     <string name="auth_prefs">auth_preferences.xml</string>
     <string name="friend_search">Добавить друга</string>
+    <string name="help_text">
+        • Создание ключа Steam
+        \n― Перейдите по ссылке (https://steamcommunity.com/dev/apikey)
+        \n― Введите в поле \"Домен\" любое слово
+        \n― Примите соглашение
+        \n― Нажмите \"Зарегистрировать\"
+        \n― Скопируйте зарегистрированный ключ в приложение
+        \n\n
+        • Получение SteamID64
+        \n― Перейдите по ссылке (https://steamid.io/)
+        \n― Вставьте в поле ввода ссылку на ваш профиль Steam
+        \n― Скопируйте найденный SteamID64 в приложение
+        \n\n
+        • Создание ключа GitHub
+        \n― Перейдите по ссылке (https://github.com/settings/tokens)
+        \n― Нажмите \"Generate new token\"
+        \n― Введите в поле \"Note\" любое слово
+        \n― Выберите полностью разделы \"user\" и \"repo\"
+        \n― Скопируйте созданный ключ в приложение
+    </string>
 </resources>

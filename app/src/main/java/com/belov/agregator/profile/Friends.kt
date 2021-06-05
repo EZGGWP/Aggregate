@@ -133,13 +133,17 @@ class Friends : Fragment() {
 
     fun addNamesToIDs() {
         for (friend in friendships) {
-            friend.sUsername = users.find {
+            val un = users.find {
                 it.id == friend.sId
-            }!!.username
+            }?.username
 
-            friend.rUsername = users.find {
+            if (un != null) friend.sUsername = un
+
+            val un2 = users.find {
                 it.id == friend.rId
-            }!!.username
+            }?.username
+
+            if (un2 != null) friend.rUsername = un2
         }
     }
 

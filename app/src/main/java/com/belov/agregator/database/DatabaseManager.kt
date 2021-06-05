@@ -54,6 +54,10 @@ class DatabaseManager(private val parent: App) {
         }
     }
 
+    fun isAchJsonInitialized(): Boolean {
+        return this::achJson.isInitialized
+    }
+
     fun setCurrentUserNameAndGetHash(username: String) {
         this.username = username
         getUserPasswordHash()
@@ -169,14 +173,17 @@ class DatabaseManager(private val parent: App) {
     }
 
     fun getUserAchievementsJson() {
-        GlobalScope.launch {
-            val prepStatement = connection.prepareStatement("SELECT \"achievements\" FROM \"users\" WHERE \"username\" = ?")
-            prepStatement.setString(1, username)
-            val resultSet = prepStatement.executeQuery()
-            if (resultSet.next()) {
-                val json = resultSet.getString(1)
-                achJson = Gson().fromJson(json, JsonObject::class.java)
+        runBlocking {
+            val coroutine = GlobalScope.launch {
+                val prepStatement = connection.prepareStatement("SELECT \"achievements\" FROM \"users\" WHERE \"username\" = ?")
+                prepStatement.setString(1, username)
+                val resultSet = prepStatement.executeQuery()
+                if (resultSet.next()) {
+                    val json = resultSet.getString(1)
+                    achJson = Gson().fromJson(json, JsonObject::class.java)
+                }
             }
+            coroutine.join()
         }
     }
 
@@ -217,7 +224,7 @@ class DatabaseManager(private val parent: App) {
         return this::connection.isInitialized
     }
 
-    fun getNewConnection(): Connection {
+    fun getNewConnection() {
         GlobalScope.launch {
             try {
                 connection = DriverManager.getConnection("jdbc:postgresql://188.134.66.115:5432/agregator", "postgres", "azl41kmng85!_")
@@ -229,8 +236,9 @@ class DatabaseManager(private val parent: App) {
                     }
 
                     hasErrorOccurred = true
-
-                    parent.mainActivity.onValueChanged(false)
+                    if (parent.isMainActivityInitialized()) {
+                        parent.mainActivity.onValueChanged(false)
+                    }
                 }
             }
             if (this@DatabaseManager::state.isInitialized) {
@@ -238,6 +246,5 @@ class DatabaseManager(private val parent: App) {
             }
             hasErrorOccurred = false
         }
-        return connection
     }
 }

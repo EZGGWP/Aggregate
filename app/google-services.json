@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "828225303262",
+    "project_id": "aggregate-f7804",
+    "storage_bucket": "aggregate-f7804.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:828225303262:android:e6f8fba42b67af51a0884f",
+        "android_client_info": {
+          "package_name": "com.belov.agregator"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "828225303262-32n2qvuo54d0njnrihf21pbn801624n4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAlcmGX2O1UQUHuRYJJpO15XzBvCps5cLA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "828225303262-32n2qvuo54d0njnrihf21pbn801624n4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
